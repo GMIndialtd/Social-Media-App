@@ -45,8 +45,7 @@ const App = () => {
          </div>
          <div className="lg:col-span-2">
             <div className="hidden lg:block">
-             <div className="space-y-6">
-            <div className="bg-white p-4 shadow rounded-lg">   
+                
          <PeopleYouMayKnow users={users} />
          </div>
         <div className="bg-white p-4 shadow rounded-lg"> 
@@ -56,8 +55,7 @@ const App = () => {
          </div>
        </div>
      </div>
-     </div>
-     </div>
+    
      
   );
 }
