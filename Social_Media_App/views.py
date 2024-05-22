@@ -1,14 +1,13 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import user_signup, user_Profile
 from .serializers import UserSignupSerializer, UserLoginSerializer, ProfileSerializer
 from django.contrib.auth import authenticate
-from rest_framework import generics
-from rest_framework import status
+from django.contrib.auth.hashers import check_password
 
 
 @api_view(["POST"])
@@ -23,20 +22,29 @@ def signup(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserLoginView(APIView):
+class UserLoginView(generics.GenericAPIView):
+    serializer_class = UserLoginSerializer
+
     def post(self, request, *args, **kwargs):
-        serializer = UserLoginSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data["username"]
             password = serializer.validated_data["password"]
-            user = user_signup.objects.filter(username=username).first()
-            if user and user.check_password(password):
-                token, created = Token.objects.get_or_create(user=user)
-                return Response({"token": token.key}, status=status.HTTP_200_OK)
-            return Response(
-                {"error": "Invalid username or password"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            try:
+                user = user_signup.objects.get(username=username)
+                if check_password(password, user.password):
+                    return Response(
+                        {"message": "Login successful"}, status=status.HTTP_200_OK
+                    )
+                else:
+                    return Response(
+                        {"error": "Invalid password"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            except user_signup.DoesNotExist:
+                return Response(
+                    {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

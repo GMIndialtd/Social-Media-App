@@ -14,10 +14,15 @@ class UserSignupSerializer(serializers.ModelSerializer):
         validated_data["password"] = make_password(validated_data["password"])
         return super(UserSignupSerializer, self).create(validated_data)
 
+    def update(self, instance, validated_data):
+        if "password" in validated_data:
+            validated_data["password"] = make_password(validated_data["password"])
+        return super(UserSignupSerializer, self).update(instance, validated_data)
+
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=50)
-    password = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=255, write_only=True)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -25,4 +30,13 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = user_Profile
-        fields = ["id", "user", "first_name", "last_name", "mobile_number", "profile_image", "created_on", "updated_on"]
+        fields = [
+            "id",
+            "user",
+            "first_name",
+            "last_name",
+            "mobile_number",
+            "profile_image",
+            "created_on",
+            "updated_on",
+        ]
