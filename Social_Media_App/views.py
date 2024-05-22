@@ -4,9 +4,11 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import user_signup
-from .serializers import UserSignupSerializer, UserLoginSerializer
+from .models import user_signup, user_Profile
+from .serializers import UserSignupSerializer, UserLoginSerializer, ProfileSerializer
 from django.contrib.auth import authenticate
+from rest_framework import generics
+from rest_framework import status
 
 
 @api_view(["POST"])
@@ -36,3 +38,38 @@ class UserLoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileListCreate(generics.ListCreateAPIView):
+    queryset = user_Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+    def create(self, request, *args, **kwargs):
+        user_data = request.data.get("user")
+        if user_data:
+            user_serializer = UserSignupSerializer(data=user_data)
+            if user_serializer.is_valid():
+                user = user_serializer.save()
+                profile_data = request.data.copy()
+                profile_data["user"] = user.id
+                profile_serializer = self.get_serializer(data=profile_data)
+                if profile_serializer.is_valid():
+                    profile_serializer.save()
+                    return Response(
+                        profile_serializer.data, status=status.HTTP_201_CREATED
+                    )
+                else:
+                    user.delete()
+                    return Response(
+                        profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
+            else:
+                return Response(
+                    user_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                )
+        return super().create(request, *args, **kwargs)
+
+
+class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = user_Profile.objects.all()
+    serializer_class = ProfileSerializer
