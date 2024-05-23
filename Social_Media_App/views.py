@@ -4,8 +4,12 @@ from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import user_signup
-from .serializers import UserSignupSerializer, UserLoginSerializer
+from .models import user_signup, UserProfile
+from .serializers import (
+    UserSignupSerializer,
+    UserLoginSerializer,
+    UserProfileSerializer,
+)
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 
@@ -46,3 +50,11 @@ class UserLoginView(generics.GenericAPIView):
                     {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+
+    def get_object(self):
+        return self.request.user.profile

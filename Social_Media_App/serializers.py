@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import user_signup
+from .models import user_signup, UserProfile
 from django.contrib.auth.hashers import make_password
 
 
@@ -21,3 +21,9 @@ class UserSignupSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=50)
     password = serializers.CharField(max_length=255, write_only=True)
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
