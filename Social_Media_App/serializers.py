@@ -26,4 +26,13 @@ class UserLoginSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = "__all__"
+        fields = [
+            "first_name",
+            "last_name",
+            "mobile_number",
+            "profile_image",
+            "cover_photo",
+            "bio",
+            "interests",
+            "contact_info",
+        ]

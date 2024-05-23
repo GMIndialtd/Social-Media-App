@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -55,6 +56,23 @@ class UserLoginView(generics.GenericAPIView):
 class UserProfileView(generics.RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return self.request.user.profile
+        user = self.request.user
+        # Ensure the profile is created when the user signs up
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        return profile
+
+    def get(self, request, *args, **kwargs):
+        profile = self.get_object()
+        serializer = self.get_serializer(profile)
+        return Response(serializer.data)
+
+    def patch(self, request, *args, **kwargs):
+        profile = self.get_object()
+        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
