@@ -6,6 +6,7 @@ import Login from './auth/Login';
 import Register from './auth/Register';
 import Nopage from './auth/Nopage';
 import Navbar from './Navbar';
+import SearchBar from './components/SearchBar';
 function App() {
   return (
    <div>
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
         <Route path="*" element={<Nopage/>} />
+        <Route path="/searchbar" element={<SearchBar/>} />
       
     </Routes>
   </BrowserRouter>
