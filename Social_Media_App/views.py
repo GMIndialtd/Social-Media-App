@@ -38,8 +38,10 @@ class UserLoginView(generics.GenericAPIView):
             try:
                 user = user_signup.objects.get(username=username)
                 if check_password(password, user.password):
+                    token, created = Token.objects.get_or_create(user=user)
                     return Response(
-                        {"message": "Login successful"}, status=status.HTTP_200_OK
+                        {"message": "Login successful", "token": token.key},
+                        status=status.HTTP_200_OK,
                     )
                 else:
                     return Response(
@@ -60,7 +62,6 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         user = self.request.user
-        # Ensure the profile is created when the user signs up
         profile, created = UserProfile.objects.get_or_create(user=user)
         return profile
 
