@@ -26,5 +26,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
             mobile_number=validated_data["mobile_number"],
+            profile_photo=validated_data.get("profile_photo"),
         )
         return user
+
+
+class ProfilePhotoUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["profile_photo"]
