@@ -1,38 +1,30 @@
 from rest_framework import serializers
-from .models import user_signup, UserProfile
-from django.contrib.auth.hashers import make_password
+from .models import CustomUser
 
 
-class UserSignupSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = user_signup
-        fields = ["username", "email", "password"]
-
-    def create(self, validated_data):
-        validated_data["password"] = make_password(validated_data["password"])
-        return super(UserSignupSerializer, self).create(validated_data)
-
-    def update(self, instance, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(validated_data["password"])
-        return super(UserSignupSerializer, self).update(instance, validated_data)
-
-
-class UserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=50)
-    password = serializers.CharField(max_length=255, write_only=True)
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
+        model = CustomUser
         fields = [
+            "id",
+            "username",
             "first_name",
             "last_name",
+            "email",
             "mobile_number",
-            "profile_image",
-            "cover_photo",
-            "bio",
-            "interests",
-            "contact_info",
+            "password",
+            "created_on",
+            "updated_on",
         ]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        user = CustomUser.objects.create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            mobile_number=validated_data["mobile_number"],
+        )
+        return user
