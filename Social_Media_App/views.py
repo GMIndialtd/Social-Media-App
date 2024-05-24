@@ -1,8 +1,8 @@
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
-from .models import CustomUser
-from .serializers import CustomUserSerializer, ProfilePhotoUpdateSerializer
+from .models import CustomUser, Post
+from .serializers import CustomUserSerializer, PostSerializer, ProfilePhotoUpdateSerializer
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -25,3 +25,21 @@ class ProfilePhotoUpdateView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class NewsFeedView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        following_users = user.following.all()
+        queryset = Post.objects.filter(user__in=following_users)
+        return queryset

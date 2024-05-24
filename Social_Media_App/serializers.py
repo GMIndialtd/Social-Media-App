@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser,Post
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -35,3 +35,15 @@ class ProfilePhotoUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["profile_photo"]
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = [
+            'id',
+            'user',
+            'content',
+            'image',
+            'created_on',
+            'updated_on',
+        ]

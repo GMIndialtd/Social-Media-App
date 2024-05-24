@@ -1,12 +1,15 @@
-from django.urls import path
+from django.urls import include, path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from .views import UserCreateView, UserDetailView, ProfilePhotoUpdateView
+from rest_framework.routers import DefaultRouter
+from .views import NewsFeedView, UserCreateView, UserDetailView,  PostViewSet, ProfilePhotoUpdateView
 from django.conf import settings
 from django.conf.urls.static import static
 
+router = DefaultRouter()
+router.register(r'posts', PostViewSet)
 
 urlpatterns = [
     path("api/users/", UserCreateView.as_view(), name="user-create"),
@@ -18,6 +21,9 @@ urlpatterns = [
         ProfilePhotoUpdateView.as_view(),
         name="profile_photo_update",
     ),
+    path("api/newsfeed/", NewsFeedView.as_view(), name="news_feed"),
+    path("api/", include(router.urls)),
+    
 ]
 
 if settings.DEBUG:
