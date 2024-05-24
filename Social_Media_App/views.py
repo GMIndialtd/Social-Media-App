@@ -26,9 +26,11 @@ class ProfilePhotoUpdateView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user
 
+
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

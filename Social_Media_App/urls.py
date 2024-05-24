@@ -21,10 +21,13 @@ urlpatterns = [
         ProfilePhotoUpdateView.as_view(),
         name="profile_photo_update",
     ),
+    path('api/posts/',
+         PostViewSet.as_view({'post': 'create'}), name='post-create'),
     path("api/newsfeed/", NewsFeedView.as_view(), name="news_feed"),
     path("api/", include(router.urls)),
-    
+
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

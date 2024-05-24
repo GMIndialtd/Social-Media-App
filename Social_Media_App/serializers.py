@@ -1,22 +1,36 @@
 from rest_framework import serializers
-from .models import CustomUser,Post
+from .models import CustomUser, Post
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True)
+
     class Meta:
         model = CustomUser
         fields = [
             "id",
-            "username",
             "first_name",
             "last_name",
             "email",
             "mobile_number",
+            "username",
             "password",
+            "confirm_password",
             "created_on",
             "updated_on",
         ]
         extra_kwargs = {"password": {"write_only": True}}
+
+    def validate(self, attrs):
+        if attrs.get('password') != attrs.get('confirm_password'):
+            raise serializers.ValidationError("The passwords do not match.")
+        return attrs
+
+    def create(self, validated_data):
+        # Remove confirm_password if it exists
+        validated_data.pop('confirm_password', None)
+        user = CustomUser.objects.create_user(**validated_data)
+        return user
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
@@ -35,6 +49,7 @@ class ProfilePhotoUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["profile_photo"]
+
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
